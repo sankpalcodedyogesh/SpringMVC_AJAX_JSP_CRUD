@@ -27,11 +27,6 @@ public class StudentController {
         return service.getAllStudent();
     }
 
-//    @GetMapping("/addStudentPage")
-//    public String getAddPage() {
-//        return "addStudent";
-//    }
-
     @PostMapping("/saveStudent")
     @ResponseBody
     public void saveStudent(@RequestBody Student student) {

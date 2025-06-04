@@ -14,18 +14,33 @@
     <script type="text/javascript">
         $(document).ready(function () {
             loadTable();
+            
+            $('#cancleBtn').click(function(){
+            	 $('#addStudentForm input').removeClass('is-invalid');
+            });
+            
+            $('#crossBtn').click(function(){
+           	 $('#addStudentForm input').removeClass('is-invalid');
+           });
+
 
             $('#saveStudentBtn').click(function () {
                 var name = $('#addStudentName').val().trim();
                 var email = $('#addStudentEmail').val().trim();
                 var address = $('#addStudentAddress').val().trim();
+                
+                var emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                var nameRegex = /^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/;
+                var addressRegex = /^[a-zA-Z0-9\s,'-\.#]+$/;
+
+
 
                 $('#addStudentForm input').removeClass('is-invalid');
 
                 let isValid = true;
-                if (!name) { $('#addStudentName').addClass('is-invalid'); isValid = false; }
-                if (!email) { $('#addStudentEmail').addClass('is-invalid'); isValid = false; }
-                if (!address) { $('#addStudentAddress').addClass('is-invalid'); isValid = false; }
+                if (!name || !nameRegex.test(name)) { $('#addStudentName').addClass('is-invalid'); isValid = false; }
+                if (!email || !emailRegex.test(email)) { $('#addStudentEmail').addClass('is-invalid'); isValid = false; }
+                if (!address || !addressRegex.test(address)) { $('#addStudentAddress').addClass('is-invalid'); isValid = false; }
 
                 if (!isValid) return;
 
@@ -125,12 +140,17 @@
                 var email = $('#editStudentEmail').val().trim();
                 var address = $('#editStudentAddress').val().trim();
 
+                
+                var emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                var nameRegex = /^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/;
+                var addressRegex = /^[a-zA-Z0-9\s,'-\.#]+$/;
+                
                 $('#editStudentForm input').removeClass('is-invalid');
 
                 let isValid = true;
-                if (!name) { $('#editStudentName').addClass('is-invalid'); isValid = false; }
-                if (!email) { $('#editStudentEmail').addClass('is-invalid'); isValid = false; }
-                if (!address) { $('#editStudentAddress').addClass('is-invalid'); isValid = false; }
+                if (!name || !nameRegex.test(name)) { $('#editStudentName').addClass('is-invalid'); isValid = false; }
+                if (!email || !emailRegex(email)) { $('#editStudentEmail').addClass('is-invalid'); isValid = false; }
+                if (!address || !addressRegex(address)) { $('#editStudentAddress').addClass('is-invalid'); isValid = false; }
 
                 if (!isValid) return;
 
@@ -217,17 +237,17 @@
                     <div class="mb-3">
                         <label for="editStudentName" class="form-label">Name</label>
                         <input type="text" class="form-control" id="editStudentName" required>
-                        <div class="invalid-feedback">Name is required.</div>
+                        <div class="invalid-feedback">please enter valid name.</div>
                     </div>
                     <div class="mb-3">
                         <label for="editStudentEmail" class="form-label">Email</label>
                         <input type="email" class="form-control" id="editStudentEmail" required>
-                        <div class="invalid-feedback">Email is required.</div>
+                        <div class="invalid-feedback">please enter valid Email.</div>
                     </div>
                     <div class="mb-3">
                         <label for="editStudentAddress" class="form-label">Address</label>
                         <input type="text" class="form-control" id="editStudentAddress" required>
-                        <div class="invalid-feedback">Address is required.</div>
+                        <div class="invalid-feedback">please enter valid Address.</div>
                     </div>
                 </form>
             </div>
@@ -245,29 +265,29 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Add Student</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="crossBtn"></button>
             </div>
             <div class="modal-body">
                 <form id="addStudentForm">
                     <div class="mb-3">
                         <label for="addStudentName" class="form-label">Name</label>
                         <input type="text" class="form-control" id="addStudentName" required>
-                        <div class="invalid-feedback">Name is required.</div>
+                        <div class="invalid-feedback">Please Enter Valid Name.</div>
                     </div>
                     <div class="mb-3">
                         <label for="addStudentEmail" class="form-label">Email</label>
                         <input type="email" class="form-control" id="addStudentEmail" required>
-                        <div class="invalid-feedback">Email is required.</div>
+                        <div class="invalid-feedback">Please Enter Valid email.</div>
                     </div>
                     <div class="mb-3">
                         <label for="addStudentAddress" class="form-label">Address</label>
                         <input type="text" class="form-control" id="addStudentAddress" required>
-                        <div class="invalid-feedback">Address is required.</div>
+                        <div class="invalid-feedback">Please Enter Valid Address.</div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="cancleBtn">Cancel</button>
                 <button type="button" class="btn btn-primary" id="saveStudentBtn">Save</button>
             </div>
         </div>

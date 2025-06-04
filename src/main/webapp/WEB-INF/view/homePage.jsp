@@ -1,44 +1,38 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ page import="com.app.entity.User"%>
+<%
+User user = (User) session.getAttribute("loggedInUser");
+String role = (user != null) ? user.getRole() : "";
+%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta charset="UTF-8">
+<title>Student Records</title>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+	rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script
+	src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-	
-    <meta charset="UTF-8">
-    <title>Student Records</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    
-    
-
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <script type="text/javascript">
+<script type="text/javascript">
         $(document).ready(function () {
             loadTable();
-            
-            $('#cancleBtn').click(function(){
-            	 $('#addStudentForm input').removeClass('is-invalid');
-            });
-            
-            $('#crossBtn').click(function(){
-           	 $('#addStudentForm input').removeClass('is-invalid');
-           });
 
+            $('#cancleBtn, #crossBtn').click(function () {
+                $('#addStudentForm input').removeClass('is-invalid');
+            });
 
             $('#saveStudentBtn').click(function () {
                 var name = $('#addStudentName').val().trim();
                 var email = $('#addStudentEmail').val().trim();
                 var address = $('#addStudentAddress').val().trim();
-                
+
                 var emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
                 var nameRegex = /^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/;
                 var addressRegex = /^[a-zA-Z0-9\s,'-\.#]+$/;
-
-
 
                 $('#addStudentForm input').removeClass('is-invalid');
 
@@ -52,7 +46,7 @@
                 var student = { name, email, address };
 
                 $.ajax({
-                    url: 'saveStudent',
+                    url: 'students/saveStudent',
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify(student),
@@ -71,7 +65,7 @@
 
         function loadTable() {
             $.ajax({
-                url: 'studentList',
+                url: 'students/studentList',
                 type: 'GET',
                 dataType: 'json',
                 success: function (data) {
@@ -89,11 +83,14 @@
                             '<td>' + name + '</td>' +
                             '<td>' + email + '</td>' +
                             '<td>' + address + '</td>' +
-                            '<td>' +
-                                '<button class="btn btn-primary btn-sm editBtn">Edit</button> ' +
-                                '<button class="btn btn-danger btn-sm" onclick="deleteStudent(' + id + ')">Delete</button>' +
-                            '</td>' +
-                            '</tr>';
+                            '<td>';
+                        <%if ("ADMIN".equals(role)) {%>
+                            rows += '<button class="btn btn-primary btn-sm editBtn">Edit</button> ' +
+                                    '<button class="btn btn-danger btn-sm" onclick="deleteStudent(' + id + ')">Delete</button>';
+                        <%} else {%>
+                            rows += '<span class="text-muted">Restricted</span>';
+                        <%}%>
+                        rows += '</td></tr>';
                     }
                     $('#studentTableBody').html(rows);
                     bindEditEvents();
@@ -107,7 +104,7 @@
         function deleteStudent(id) {
             if (confirm("Are you sure you want to delete this student?")) {
                 $.ajax({
-                    url: 'deleteStudent/' + id,
+                    url: 'student/deleteStudent/' + id,
                     type: 'DELETE',
                     success: function () {
                         alert("Student deleted successfully.");
@@ -132,7 +129,6 @@
                 $('#editStudentName').val(name);
                 $('#editStudentEmail').val(email);
                 $('#editStudentAddress').val(address);
-
                 $('#editStudentForm input').removeClass('is-invalid');
 
                 var modal = new bootstrap.Modal(document.getElementById('editStudentModal'));
@@ -145,24 +141,23 @@
                 var email = $('#editStudentEmail').val().trim();
                 var address = $('#editStudentAddress').val().trim();
 
-                
                 var emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
                 var nameRegex = /^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/;
                 var addressRegex = /^[a-zA-Z0-9\s,'-\.#]+$/;
-                
+
                 $('#editStudentForm input').removeClass('is-invalid');
 
                 let isValid = true;
                 if (!name || !nameRegex.test(name)) { $('#editStudentName').addClass('is-invalid'); isValid = false; }
-                if (!email || !emailRegex(email)) { $('#editStudentEmail').addClass('is-invalid'); isValid = false; }
-                if (!address || !addressRegex(address)) { $('#editStudentAddress').addClass('is-invalid'); isValid = false; }
+                if (!email || !emailRegex.test(email)) { $('#editStudentEmail').addClass('is-invalid'); isValid = false; }
+                if (!address || !addressRegex.test(address)) { $('#editStudentAddress').addClass('is-invalid'); isValid = false; }
 
                 if (!isValid) return;
 
                 var student = { id, name, email, address };
 
                 $.ajax({
-                    url: 'updateStudent',
+                    url: 'student/updateStudent',
                     type: 'PUT',
                     contentType: 'application/json',
                     data: JSON.stringify(student),
@@ -201,103 +196,119 @@
     </script>
 </head>
 <body>
+	<div class="container mt-4">
+		<h2 class="mb-4 text-center">Student Records</h2>
 
-<div class="container mt-4">
-    <h2 class="mb-4 text-center">Student Records</h2>
+		<div class="mb-3 d-flex justify-content-between align-items-center">
+			<input type="text" id="searchInput" class="form-control w-25"
+				placeholder="Search..." onkeyup="filterTable()" />
 
-  
-    
-   <div class="mb-3 d-flex justify-content-between">
-        <input type="text" id="searchInput" class="form-control w-25" placeholder="Search..." onkeyup="filterTable()" />
-        <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#addStudentModal">Add New Student</button>
-    </div>
-    
+			<div class="d-flex">
+				<%
+				if ("ADMIN".equals(role)) {
+				%>
+				<button class="btn btn-outline-success me-2" data-bs-toggle="modal"
+					data-bs-target="#addStudentModal">Add New Student</button>
+				<%
+				}
+				%>
+				<form action="${pageContext.request.contextPath}/logout"
+					method="get">
+					<button type="submit" class="btn btn-outline-danger">Logout</button>
+				</form>
+			</div>
+		</div>
 
-    <table class="table table-bordered table-hover">
-        <thead class="table-dark">
-        <tr>
-            <th>#</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Address</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody id="studentTableBody">
-        </tbody>
-    </table>
-</div>
 
-<!-- Edit Student Modal -->
-<div class="modal fade" id="editStudentModal" tabindex="-1" aria-labelledby="editStudentModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Edit Student</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="editStudentForm">
-                    <input type="hidden" id="editStudentId">
-                    <div class="mb-3">
-                        <label for="editStudentName" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="editStudentName" required>
-                        <div class="invalid-feedback">please enter valid name.</div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editStudentEmail" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="editStudentEmail" required>
-                        <div class="invalid-feedback">please enter valid Email.</div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editStudentAddress" class="form-label">Address</label>
-                        <input type="text" class="form-control" id="editStudentAddress" required>
-                        <div class="invalid-feedback">please enter valid Address.</div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-success" id="updateStudentBtn">Update</button>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Add Student Modal -->
-<div class="modal fade" id="addStudentModal" tabindex="-1" aria-labelledby="addStudentModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Add Student</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="crossBtn"></button>
-            </div>
-            <div class="modal-body">
-                <form id="addStudentForm">
-                    <div class="mb-3">
-                        <label for="addStudentName" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="addStudentName" required>
-                        <div class="invalid-feedback">Please Enter Valid Name.</div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="addStudentEmail" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="addStudentEmail" required>
-                        <div class="invalid-feedback">Please Enter Valid email.</div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="addStudentAddress" class="form-label">Address</label>
-                        <input type="text" class="form-control" id="addStudentAddress" required>
-                        <div class="invalid-feedback">Please Enter Valid Address.</div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="cancleBtn">Cancel</button>
-                <button type="button" class="btn btn-primary" id="saveStudentBtn">Save</button>
-            </div>
-        </div>
-    </div>
-</div>
+		<table class="table table-bordered table-hover">
+			<thead class="table-dark">
+				<tr>
+					<th>#</th>
+					<th>Name</th>
+					<th>Email</th>
+					<th>Address</th>
+					<th>Actions</th>
+				</tr>
+			</thead>
+			<tbody id="studentTableBody"></tbody>
+		</table>
+	</div>
+
+	<!-- Edit Student Modal -->
+	<div class="modal fade" id="editStudentModal" tabindex="-1"
+		aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Edit Student</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body">
+					<form id="editStudentForm">
+						<input type="hidden" id="editStudentId">
+						<div class="mb-3">
+							<label class="form-label">Name</label> <input type="text"
+								class="form-control" id="editStudentName">
+							<div class="invalid-feedback">Please enter a valid name.</div>
+						</div>
+						<div class="mb-3">
+							<label class="form-label">Email</label> <input type="email"
+								class="form-control" id="editStudentEmail">
+							<div class="invalid-feedback">Please enter a valid email.</div>
+						</div>
+						<div class="mb-3">
+							<label class="form-label">Address</label> <input type="text"
+								class="form-control" id="editStudentAddress">
+							<div class="invalid-feedback">Please enter a valid address.</div>
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<button class="btn btn-success" id="updateStudentBtn">Update</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Add Student Modal -->
+	<div class="modal fade" id="addStudentModal" tabindex="-1"
+		aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Add Student</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						id="crossBtn"></button>
+				</div>
+				<div class="modal-body">
+					<form id="addStudentForm">
+						<div class="mb-3">
+							<label class="form-label">Name</label> <input type="text"
+								class="form-control" id="addStudentName">
+							<div class="invalid-feedback">Please enter a valid name.</div>
+						</div>
+						<div class="mb-3">
+							<label class="form-label">Email</label> <input type="email"
+								class="form-control" id="addStudentEmail">
+							<div class="invalid-feedback">Please enter a valid email.</div>
+						</div>
+						<div class="mb-3">
+							<label class="form-label">Address</label> <input type="text"
+								class="form-control" id="addStudentAddress">
+							<div class="invalid-feedback">Please enter a valid address.</div>
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-secondary" data-bs-dismiss="modal"
+						id="cancleBtn">Cancel</button>
+					<button class="btn btn-primary" id="saveStudentBtn">Save</button>
+				</div>
+			</div>
+		</div>
+	</div>
 
 </body>
 </html>

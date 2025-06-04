@@ -116,6 +116,12 @@
     <version>3.0.3</version>
 </dependency>
 
+<dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-core</artifactId>
+    <version>6.2.1</version> <!-- Or compatible version -->
+</dependency>
+
         
     </dependencies>
   <build>

@@ -104,7 +104,7 @@ String role = (user != null) ? user.getRole() : "";
         function deleteStudent(id) {
             if (confirm("Are you sure you want to delete this student?")) {
                 $.ajax({
-                    url: 'student/deleteStudent/' + id,
+                    url: 'students/deleteStudent/' + id,
                     type: 'DELETE',
                     success: function () {
                         alert("Student deleted successfully.");
@@ -116,6 +116,7 @@ String role = (user != null) ? user.getRole() : "";
                 });
             }
         }
+
 
         function bindEditEvents() {
             $('.editBtn').click(function () {
@@ -157,7 +158,7 @@ String role = (user != null) ? user.getRole() : "";
                 var student = { id, name, email, address };
 
                 $.ajax({
-                    url: 'student/updateStudent',
+                    url: 'students/updateStudent',
                     type: 'PUT',
                     contentType: 'application/json',
                     data: JSON.stringify(student),

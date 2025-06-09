@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import com.app.entity.Student;
+import com.app.service.EmailService;
 import com.app.service.StudentService;
 
 @Controller
@@ -15,6 +16,9 @@ public class StudentController {
 
     @Autowired
     protected StudentService service;
+    
+    @Autowired
+    protected EmailService emailService;
 
     @GetMapping
     public String frontPage() {
@@ -29,8 +33,15 @@ public class StudentController {
 
     @PostMapping("/saveStudent")
     @ResponseBody
-    public void saveStudent(@RequestBody Student student) {
+    public String saveStudent(@RequestBody Student student) {
         service.saveStudent(student);
+        emailService.sendEmail(
+                student.getEmail(),
+                "Welcome to the Portal",
+                "Dear " + student.getName() + ", your student record has been created successfully."
+            );
+
+            return "Saved and email sent";
     }
 
     @GetMapping("/studentById/{id}")
